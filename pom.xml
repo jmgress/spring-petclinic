@@ -35,9 +35,8 @@
         <!-- Others -->
         <mysql-driver.version>5.1.36</mysql-driver.version>
 
-
         <org.ehcache.version>3.9.2</org.ehcache.version>
-        <com.fasterxml.jackson.core.version>2.8.5</com.fasterxml.jackson.core.version>
+        <com.fasterxml.jackson.core.version>2.12.2</com.fasterxml.jackson.core.version>
 
         <!-- Web dependencies -->
         <dandelion.version>1.1.1</dandelion.version>
