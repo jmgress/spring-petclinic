@@ -93,4 +93,34 @@ class VisitController {
 		return "redirect:/owners/{ownerId}";
 	}
 
+	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule")
+	public String initRescheduleVisitForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
+			@PathVariable("visitId") int visitId, Map<String, Object> model) {
+		Owner owner = this.owners.findById(ownerId);
+		Pet pet = owner.getPet(petId);
+		Visit visit = pet.getVisits().stream().filter(v -> v.getId().equals(visitId)).findFirst().orElse(null);
+		model.put("visit", visit);
+		model.put("pet", pet);
+		model.put("owner", owner);
+		return "pets/rescheduleVisitForm";
+	}
+
+	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule")
+	public String processRescheduleVisitForm(@ModelAttribute Owner owner, @PathVariable int petId,
+			@PathVariable int visitId, @Valid Visit newVisit, BindingResult result, RedirectAttributes redirectAttributes) {
+		if (result.hasErrors()) {
+			return "pets/rescheduleVisitForm";
+		}
+
+		Pet pet = owner.getPet(petId);
+		Visit originalVisit = pet.getVisits().stream().filter(v -> v.getId().equals(visitId)).findFirst().orElse(null);
+		if (originalVisit != null) {
+			newVisit.setRescheduledFrom(originalVisit);
+			pet.addVisit(newVisit);
+			this.owners.save(owner);
+			redirectAttributes.addFlashAttribute("message", "Your visit has been rescheduled");
+		}
+		return "redirect:/owners/{ownerId}";
+	}
+
 }

@@ -171,4 +171,31 @@ public class Owner extends Person {
 		pet.addVisit(visit);
 	}
 
+	/**
+	 * Reschedules the given {@link Visit} for the {@link Pet} with the given identifier.
+	 * @param petId the identifier of the {@link Pet}, must not be {@literal null}.
+	 * @param visitId the identifier of the {@link Visit} to reschedule, must not be {@literal null}.
+	 * @param newVisit the new visit details, must not be {@literal null}.
+	 */
+	public void rescheduleVisit(Integer petId, Integer visitId, Visit newVisit) {
+
+		Assert.notNull(petId, "Pet identifier must not be null!");
+		Assert.notNull(visitId, "Visit identifier must not be null!");
+		Assert.notNull(newVisit, "New visit must not be null!");
+
+		Pet pet = getPet(petId);
+
+		Assert.notNull(pet, "Invalid Pet identifier!");
+
+		Visit originalVisit = pet.getVisits().stream()
+			.filter(v -> v.getId().equals(visitId))
+			.findFirst()
+			.orElse(null);
+
+		Assert.notNull(originalVisit, "Invalid Visit identifier!");
+
+		newVisit.setRescheduledFrom(originalVisit);
+		pet.addVisit(newVisit);
+	}
+
 }
