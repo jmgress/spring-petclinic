@@ -42,6 +42,8 @@ public class Visit extends BaseEntity {
 	@NotBlank
 	private String description;
 
+	private Visit rescheduledFrom;
+
 	/**
 	 * Creates a new instance of Visit for the current date
 	 */
@@ -63,6 +65,14 @@ public class Visit extends BaseEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Visit getRescheduledFrom() {
+		return this.rescheduledFrom;
+	}
+
+	public void setRescheduledFrom(Visit rescheduledFrom) {
+		this.rescheduledFrom = rescheduledFrom;
 	}
 
 }
