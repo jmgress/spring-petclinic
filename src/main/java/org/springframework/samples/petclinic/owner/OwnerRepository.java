@@ -79,4 +79,18 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
 	@Transactional(readOnly = true)
 	Page<Owner> findAll(Pageable pageable);
 
+	/**
+	 * Save a rescheduled {@link Visit} to the data store.
+	 * @param visit the {@link Visit} to save
+	 */
+	void saveRescheduledVisit(Visit visit);
+
+	/**
+	 * Retrieve a rescheduled {@link Visit} from the data store by id.
+	 * @param id the id to search for
+	 * @return the {@link Visit} if found
+	 */
+	@Query("SELECT visit FROM Visit visit WHERE visit.id =:id")
+	@Transactional(readOnly = true)
+	Visit findRescheduledVisitById(@Param("id") Integer id);
 }

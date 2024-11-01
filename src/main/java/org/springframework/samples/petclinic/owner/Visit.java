@@ -42,6 +42,9 @@ public class Visit extends BaseEntity {
 	@NotBlank
 	private String description;
 
+	@Column(name = "rescheduled_from")
+	private LocalDate rescheduledFrom;
+
 	/**
 	 * Creates a new instance of Visit for the current date
 	 */
@@ -63,6 +66,14 @@ public class Visit extends BaseEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public LocalDate getRescheduledFrom() {
+		return this.rescheduledFrom;
+	}
+
+	public void setRescheduledFrom(LocalDate rescheduledFrom) {
+		this.rescheduledFrom = rescheduledFrom;
 	}
 
 }
