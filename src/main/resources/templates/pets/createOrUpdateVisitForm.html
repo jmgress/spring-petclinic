@@ -27,6 +27,12 @@
         th:text="${owner?.firstName + ' ' + owner?.lastName}"></td>
     </tr>
   </table>
+  
+  <!-- Display pet picture if available -->
+  <div th:if="${pet.pictureUrl != null}" class="text-center" style="margin: 20px 0;">
+    <img th:src="${pet.pictureUrl}" alt="Pet Picture" style="max-width: 200px; max-height: 200px; border-radius: 5px;" />
+    <p><strong>Pet Picture for Verification</strong></p>
+  </div>
 
   <form th:object="${visit}" class="form-horizontal" method="post">
     <div class="form-group has-feedback">

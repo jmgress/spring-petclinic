@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -47,9 +49,11 @@ class PetController {
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
 	private final OwnerRepository owners;
+	private final FileStorageService fileStorageService;
 
-	public PetController(OwnerRepository owners) {
+	public PetController(OwnerRepository owners, FileStorageService fileStorageService) {
 		this.owners = owners;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@ModelAttribute("types")
@@ -98,6 +102,7 @@ class PetController {
 
 	@PostMapping("/pets/new")
 	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result,
+			@RequestParam(value = "picture", required = false) MultipartFile picture,
 			RedirectAttributes redirectAttributes) {
 
 		if (StringUtils.hasText(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null)
@@ -106,6 +111,20 @@ class PetController {
 		LocalDate currentDate = LocalDate.now();
 		if (pet.getBirthDate() != null && pet.getBirthDate().isAfter(currentDate)) {
 			result.rejectValue("birthDate", "typeMismatch.birthDate");
+		}
+		
+		// Process picture upload
+		if (picture != null && !picture.isEmpty()) {
+			if (!fileStorageService.isValidImageFile(picture)) {
+				result.rejectValue("pictureUrl", "invalid", "Only JPG, JPEG, and PNG files are allowed");
+			} else {
+				try {
+					String pictureUrl = fileStorageService.storeFile(picture);
+					pet.setPictureUrl(pictureUrl);
+				} catch (Exception e) {
+					result.rejectValue("pictureUrl", "error", "Failed to upload image: " + e.getMessage());
+				}
+			}
 		}
 
 		if (result.hasErrors()) {
@@ -125,6 +144,7 @@ class PetController {
 
 	@PostMapping("/pets/{petId}/edit")
 	public String processUpdateForm(Owner owner, @Valid Pet pet, BindingResult result,
+			@RequestParam(value = "picture", required = false) MultipartFile picture,
 			RedirectAttributes redirectAttributes) {
 
 		String petName = pet.getName();
@@ -140,6 +160,26 @@ class PetController {
 		LocalDate currentDate = LocalDate.now();
 		if (pet.getBirthDate() != null && pet.getBirthDate().isAfter(currentDate)) {
 			result.rejectValue("birthDate", "typeMismatch.birthDate");
+		}
+		
+		// Process picture upload
+		if (picture != null && !picture.isEmpty()) {
+			if (!fileStorageService.isValidImageFile(picture)) {
+				result.rejectValue("pictureUrl", "invalid", "Only JPG, JPEG, and PNG files are allowed");
+			} else {
+				try {
+					String pictureUrl = fileStorageService.storeFile(picture);
+					pet.setPictureUrl(pictureUrl);
+				} catch (Exception e) {
+					result.rejectValue("pictureUrl", "error", "Failed to upload image: " + e.getMessage());
+				}
+			}
+		} else {
+			// Keep existing picture if no new one is uploaded
+			Pet existingPet = owner.getPet(pet.getId());
+			if (existingPet != null) {
+				pet.setPictureUrl(existingPet.getPictureUrl());
+			}
 		}
 
 		if (result.hasErrors()) {
@@ -163,6 +203,10 @@ class PetController {
 			existingPet.setName(pet.getName());
 			existingPet.setBirthDate(pet.getBirthDate());
 			existingPet.setType(pet.getType());
+			// Only update picture if a new one was uploaded
+			if (pet.getPictureUrl() != null) {
+				existingPet.setPictureUrl(pet.getPictureUrl());
+			}
 		}
 		else {
 			owner.addPet(pet);
