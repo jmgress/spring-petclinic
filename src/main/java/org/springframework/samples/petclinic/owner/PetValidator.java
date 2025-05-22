@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.owner;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <code>Validator</code> for <code>Pet</code> forms.

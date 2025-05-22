@@ -60,6 +60,10 @@
               th:text="${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}"></dd>
             <dt th:text="#{type}">Type</dt>
             <dd th:text="${pet.type}"></dd>
+            <dt th:if="${pet.pictureUrl != null}">Picture</dt>
+            <dd th:if="${pet.pictureUrl != null}">
+              <img th:src="${pet.pictureUrl}" alt="Pet Picture" style="max-width: 150px; max-height: 150px; border-radius: 5px;" />
+            </dd>
           </dl>
         </td>
         <td valign="top">
