@@ -51,5 +51,9 @@ CREATE TABLE IF NOT EXISTS visits (
   pet_id INT(4) UNSIGNED,
   visit_date DATE,
   description VARCHAR(255),
-  FOREIGN KEY (pet_id) REFERENCES pets(id)
+  rescheduled BOOLEAN DEFAULT FALSE,
+  is_rescheduled_version BOOLEAN DEFAULT FALSE,
+  original_visit_id INT(4) UNSIGNED,
+  FOREIGN KEY (pet_id) REFERENCES pets(id),
+  FOREIGN KEY (original_visit_id) REFERENCES visits(id)
 ) engine=InnoDB;
