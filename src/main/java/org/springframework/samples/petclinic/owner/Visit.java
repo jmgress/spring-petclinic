@@ -22,6 +22,8 @@ import org.springframework.samples.petclinic.model.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
@@ -41,6 +43,16 @@ public class Visit extends BaseEntity {
 
 	@NotBlank
 	private String description;
+	
+	@Column(name = "rescheduled")
+	private boolean rescheduled = false;
+	
+	@Column(name = "is_rescheduled_version")
+	private boolean isRescheduledVersion = false;
+	
+	@ManyToOne
+	@JoinColumn(name = "original_visit_id")
+	private Visit originalVisit;
 
 	/**
 	 * Creates a new instance of Visit for the current date
@@ -64,5 +76,28 @@ public class Visit extends BaseEntity {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
+	
+	public boolean isRescheduled() {
+		return this.rescheduled;
+	}
+	
+	public void setRescheduled(boolean rescheduled) {
+		this.rescheduled = rescheduled;
+	}
+	
+	public boolean isRescheduledVersion() {
+		return this.isRescheduledVersion;
+	}
+	
+	public void setRescheduledVersion(boolean isRescheduledVersion) {
+		this.isRescheduledVersion = isRescheduledVersion;
+	}
+	
+	public Visit getOriginalVisit() {
+		return this.originalVisit;
+	}
+	
+	public void setOriginalVisit(Visit originalVisit) {
+		this.originalVisit = originalVisit;
+	}
 }
