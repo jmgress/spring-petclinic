@@ -96,5 +96,80 @@ class VisitController {
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
 		return "redirect:/owners/{ownerId}";
 	}
-
+	
+	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule")
+	public String initRescheduleVisitForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
+			@PathVariable("visitId") int visitId, Map<String, Object> model) {
+		
+		Optional<Owner> optionalOwner = owners.findById(ownerId);
+		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
+				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+		
+		Pet pet = owner.getPet(petId);
+		
+		// Find the original visit
+		Visit originalVisit = null;
+		for (Visit visit : pet.getVisits()) {
+			if (visit.getId() != null && visit.getId() == visitId) {
+				originalVisit = visit;
+				break;
+			}
+		}
+		
+		if (originalVisit == null) {
+			throw new IllegalArgumentException("Visit not found with id: " + visitId);
+		}
+		
+		// Create a new visit for rescheduling
+		Visit newVisit = new Visit();
+		newVisit.setDate(originalVisit.getDate());
+		newVisit.setDescription(originalVisit.getDescription() + " (Rescheduled)");
+		newVisit.setRescheduledVersion(true);
+		newVisit.setOriginalVisit(originalVisit);
+		
+		model.put("pet", pet);
+		model.put("owner", owner);
+		model.put("visit", newVisit);
+		model.put("isReschedule", true);
+		model.put("addVisit", "Reschedule Visit");
+		
+		return "pets/createOrUpdateVisitForm";
+	}
+	
+	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule")
+	public String processRescheduleVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, 
+			@PathVariable int visitId, @Valid Visit visit, BindingResult result, 
+			RedirectAttributes redirectAttributes) {
+		
+		if (result.hasErrors()) {
+			return "pets/createOrUpdateVisitForm";
+		}
+		
+		Pet pet = owner.getPet(petId);
+		
+		// Find the original visit
+		Visit originalVisit = null;
+		for (Visit v : pet.getVisits()) {
+			if (v.getId() != null && v.getId() == visitId) {
+				originalVisit = v;
+				break;
+			}
+		}
+		
+		if (originalVisit == null) {
+			throw new IllegalArgumentException("Visit not found with id: " + visitId);
+		}
+		
+		// Mark the original visit as rescheduled
+		originalVisit.setRescheduled(true);
+		
+		// Set up the rescheduled visit
+		visit.setRescheduledVersion(true);
+		visit.setOriginalVisit(originalVisit);
+		
+		owner.addVisit(petId, visit);
+		this.owners.save(owner);
+		redirectAttributes.addFlashAttribute("message", "Your visit has been rescheduled");
+		return "redirect:/owners/{ownerId}";
+	}
 }

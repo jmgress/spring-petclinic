@@ -4,7 +4,8 @@
 <body>
 
   <h2>
-    <th:block th:if="${visit['new']}" th:text="#{new}">New </th:block>
+    <th:block th:if="${visit['new'] && !isReschedule}" th:text="#{new}">New </th:block>
+    <th:block th:if="${isReschedule}">Reschedule </th:block>
     Visit
   </h2>
 
@@ -39,7 +40,7 @@
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="petId" th:value="${pet.id}" />
-        <button class="btn btn-primary" type="submit" th:text="${addVisit}">Add Visit</button>
+        <button class="btn btn-primary" type="submit" th:text="${addVisit ?: 'Add Visit'}">Add Visit</button>
       </div>
     </div>
   </form>
@@ -50,10 +51,21 @@
     <tr>
       <th th:text="#{date}">Date</th>
       <th th:text="#{description}">Description</th>
+      <th th:text="#{status}">Status</th>
+      <th th:text="#{actions}">Actions</th>
     </tr>
     <tr th:if="${!visit['new']}" th:each="visit : ${pet.visits}">
       <td th:text="${#temporals.format(visit.date, 'yyyy-MM-dd')}"></td>
       <td th:text=" ${visit.description}"></td>
+      <td>
+        <span th:if="${visit.rescheduled}" class="badge bg-warning" th:text="#{rescheduled}">Rescheduled</span>
+        <span th:if="${visit.rescheduledVersion}" class="badge bg-success" th:text="#{rescheduled}">Rescheduled</span>
+      </td>
+      <td>
+        <a th:if="${!visit.rescheduled}"
+           th:href="@{/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule(ownerId=${owner.id},petId=${pet.id},visitId=${visit.id})}"
+           class="btn btn-default" th:text="#{rescheduleVisit}">Reschedule</a>
+      </td>
     </tr>
   </table>
 

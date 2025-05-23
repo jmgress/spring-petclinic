@@ -48,6 +48,8 @@ class VisitControllerTests {
 	private static final int TEST_OWNER_ID = 1;
 
 	private static final int TEST_PET_ID = 1;
+	
+	private static final int TEST_VISIT_ID = 1;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -59,8 +61,11 @@ class VisitControllerTests {
 	void init() {
 		Owner owner = new Owner();
 		Pet pet = new Pet();
+		Visit visit = new Visit();
+		visit.setId(TEST_VISIT_ID);
 		owner.addPet(pet);
 		pet.setId(TEST_PET_ID);
+		pet.addVisit(visit);
 		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
 	}
 
@@ -90,5 +95,34 @@ class VisitControllerTests {
 			.andExpect(status().isOk())
 			.andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
+	
+	@Test
+	void testInitRescheduleVisitForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule", 
+					TEST_OWNER_ID, TEST_PET_ID, TEST_VISIT_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name("pets/createOrUpdateVisitForm"));
+	}
 
+	@Test
+	void testProcessRescheduleVisitFormSuccess() throws Exception {
+		mockMvc
+			.perform(post("/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule", 
+					TEST_OWNER_ID, TEST_PET_ID, TEST_VISIT_ID)
+				.param("date", "2023-01-01")
+				.param("description", "Rescheduled Visit"))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(view().name("redirect:/owners/{ownerId}"));
+	}
+
+	@Test
+	void testProcessRescheduleVisitFormHasErrors() throws Exception {
+		mockMvc
+			.perform(post("/owners/{ownerId}/pets/{petId}/visits/{visitId}/reschedule", 
+					TEST_OWNER_ID, TEST_PET_ID, TEST_VISIT_ID)
+				.param("date", "2023-01-01"))
+			.andExpect(model().attributeHasErrors("visit"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("pets/createOrUpdateVisitForm"));
+	}
 }
