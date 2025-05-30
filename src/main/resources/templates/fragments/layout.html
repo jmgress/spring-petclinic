@@ -1,6 +1,7 @@
 <!doctype html>
 <html th:fragment="layout (template, menu)"
-      xmlns:th="https://www.thymeleaf.org">
+      xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 
 <head>
 
@@ -67,6 +68,26 @@
             <span th:text="#{error}">Error</span>
           </li>
 
+        </ul>
+
+        <ul class="navbar-nav">
+          <li class="nav-item" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{/oauth2/authorization/sso}">
+              <span class="fa fa-sign-in" aria-hidden="true"></span>
+              Login
+            </a>
+          </li>
+          <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="fa fa-user" aria-hidden="true"></span>
+              <span sec:authentication="name">User</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" th:href="@{/logout}">
+                <span class="fa fa-sign-out" aria-hidden="true"></span> Logout
+              </a></li>
+            </ul>
+          </li>
         </ul>
       </div>
     </div>
