@@ -35,8 +35,18 @@ public class SecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(authz -> authz.requestMatchers("/", "/resources/**", "/webjars/**", "/h2-console/**")
 			.permitAll()
+			.requestMatchers("/vets", "/vets.html")
+			.permitAll()
+			.requestMatchers("/owners/{id}")
+			.permitAll()
+			.requestMatchers("/owners/find")
+			.permitAll()
+			.requestMatchers("/owners/new", "/owners/*/edit")
+			.authenticated()
+			.requestMatchers("/owners/*/pets/new", "/owners/*/pets/*/edit", "/owners/*/pets/*/visits/new")
+			.authenticated()
 			.anyRequest()
-			.authenticated())
+			.permitAll())
 			.oauth2Login(oauth2 -> oauth2.loginPage("/oauth2/authorization/sso"))
 			.logout(logout -> logout.logoutSuccessUrl("/").invalidateHttpSession(true).deleteCookies("JSESSIONID"));
 
